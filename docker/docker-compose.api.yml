@@ -1,0 +1,50 @@
+version: "3.1"
+
+services:
+  braintrust-redis:
+    image: public.ecr.aws/braintrust/redis:latest
+    ports:
+      - 6479:6379
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+  braintrust-postgres:
+    image: public.ecr.aws/braintrust/postgres:latest
+    command: postgres -c config_file=/etc/postgresql.conf
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    ports:
+      - 5532:5432
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - api_pg_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+  braintrust-standalone-api:
+    image: public.ecr.aws/braintrust/standalone-api:latest
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      CHALICE_LOCAL_USE_PROD_ENV: 1
+    depends_on:
+      braintrust-redis:
+        condition: service_healthy
+      braintrust-postgres:
+        condition: service_healthy
+
+volumes:
+  api_pg_volume: null
