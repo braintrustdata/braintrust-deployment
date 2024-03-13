@@ -26,6 +26,8 @@ services:
     image: public.ecr.aws/braintrust/standalone-api:latest
     env_file:
       - .env
+    environment:
+      DEFAULT_HOSTNAME: host.docker.internal
     ports:
       - 8000:8000
     extra_hosts:
@@ -36,22 +38,34 @@ services:
       braintrust-postgres:
         condition: service_healthy
 
-  braintrust-standalone-aux:
-    image: public.ecr.aws/braintrust/standalone-aux:latest
-    env_file:
-      - .env
-    ports:
-      - 8001:8001
-      - 8100:8100
-      - 8788:8788
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
   braintrust-standalone-app:
     image: public.ecr.aws/braintrust/standalone-app:latest
     env_file:
       - .env
     ports:
       - 3000:3000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  braintrust-standalone-app-bootstrap:
+    image: public.ecr.aws/braintrust/standalone-app-bootstrap:latest
+    env_file:
+      - .env
+    ports:
+      - 8100:8100
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  braintrust-standalone-proxy:
+    image: public.ecr.aws/braintrust/standalone-proxy:latest
+    environment:
+      BRAINTRUST_APP_URL: http://host.docker.internal:3000
+    ports:
+      - 8787:8787
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  braintrust-standalone-realtime:
+    image: public.ecr.aws/braintrust/standalone-realtime:latest
+    ports:
+      - 8788:8788
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
