@@ -1,8 +1,77 @@
+# Each docker container can be configured with environment variables. Many of
+# these variables point the container to the other services, which may be other
+# containers you have deployed or centrally-hosted Braintrust services.
+#
+# Many of the environment variables have a default version as well as a "public"
+# version (e.g. `BRAINTRUST_APP_URL` and `BRAINTRUST_APP_PUBLIC_URL`). The
+# reason is that docker containers sometimes need different URLs than external
+# clients to communicate with other containers on the same machine. For
+# instance, docker containers must use the domain `host.docker.internal` instead
+# of `localhost` to refer to other services on the same host network.
+#
+# Some environment variables are used for multiple containers. Usually they will
+# be the same, but depending on exactly how you deploy the services, you may
+# need to set different values for the same env variable on different
+# containers. We document the set of available environment variables here.
+#
+# - API_PUBLIC_URL: URL of the backend API service for external clients.
+# Defaults to the URL of the `braintrust-standalone-api` service accessible from
+# the host machine.
+#
+# - BRAINTRUST_APP_URL: URL of the deployed webapp for internal container use.
+# Defaults to the URL of the `braintrust-standalone-app` docker service.
+#
+# - BRAINTRUST_APP_PUBLIC_URL: URL of the deployed webapp for external clients.
+# This is used for services that need to return a public-facing app URL to
+# users. Defaults to the URL of the `braintrust-standalone-app` docker service
+# accessible from the host machine.
+#
+# - PROXY_URL: URL of the proxy service for internal container use. Defaults to
+# the URL of the `braintrust-standalone-proxy` docker service.
+#
+# - PROXY_PUBLIC_URL: URL of the proxy service for external clients. Defaults to
+# the URL of the `braintrust-standalone-proxy` service accessible from the host
+# machine.
+#
+# - REALTIME_URL: URL of the realtime service for internal container use.
+# Defaults to the URL of the `braintrust-standalone-realtime` docker service.
+#
+# - REALTIME_PUBLIC_URL: URL of the realtime service for external clients.
+# Defaults to the URL of the `braintrust-standalone-realtime` service accessible
+# from the host machine.
+#
+# - REDIS_URL: Connection URI for the redis instance for internal container use.
+# The general form of the URI is
+# `redis://[user[:password]@][host][:port][/db-number][?param1=value1&param2=value2...]`.
+# Defaults to the URI for the `braintrust-redis` docker service.
+#
+# - PG_URL: Connection URI for the postgres instance for internal container use.
+# The general form of the URI is
+# `postgresql://[user[:password]@][host][:port][/dbname][?param1=value1&param2=value2...]`.
+# Defaults to the URI for the 'braintrust-postgres' docker service. See
+# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS
+# for full details on the URI spec.
+#
+# - SUPABASE_ANON_KEY: "anon key" of the local supabase deployment. Defaults to
+# the anon key printed out by a local supabase deployment. Note that the service
+# role here is anonymous, so the key does not grant any privileged access to the
+# DB.
+#
+# - SUPABASE_PG_URL: DB URL of the local supabase deployment for internal
+# container use. Defaults to PG URL of a locally-deployed supabase instance.
+#
+# - SUPABASE_URL: API URL of the supabase instance for internal container use.
+# Defaults to the URL of a locally-deployed supabase instance.
+#
+# - SUPABASE_PUBLIC_URL: API URL of the supabase instance for external clients.
+# Defaults to the URL of a locally-deployed supabase instance accessible from
+# the host machine.
+
 version: "3.1"
 
 services:
-  # This is kept in sync with docker-compose.api.yml, except for
-  # CHALICE_LOCAL_USE_PROD_ENV.
+  # This is kept in sync with docker-compose.api.yml, except for the environment
+  # variable settings of `braintrust-standalone-api`.
   braintrust-redis:
     image: public.ecr.aws/braintrust/redis:latest
     ports:
@@ -24,10 +93,17 @@ services:
       - api_pg_volume:/var/lib/postgresql/data
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
-    env_file:
-      - .env
     environment:
-      DEFAULT_HOSTNAME: host.docker.internal
+      BRAINTRUST_APP_URL: http://host.docker.internal:3000
+      BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
+      PROXY_URL: http://host.docker.internal:8787/v1
+      # Here we are using the http scheme because the backend API connects to
+      # the realtime service over HTTP.
+      REALTIME_URL: http://host.docker.internal:8788
+      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      REDIS_URL: redis://host.docker.internal:6479/0
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      SUPABASE_URL: http://host.docker.internal:54321
     ports:
       - 8000:8000
     extra_hosts:
@@ -40,16 +116,36 @@ services:
 
   braintrust-standalone-app:
     image: public.ecr.aws/braintrust/standalone-app:latest
-    env_file:
-      - .env
+    environment:
+      # We specify public URLs here because these variables are used by browser
+      # client itself.
+      API_PUBLIC_URL: http://localhost:8000
+      BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
+      PROXY_PUBLIC_URL: http://localhost:8787/v1
+      # Here we are using the ws scheme because the webapp connects to the
+      # realtime service over websockets.
+      REALTIME_PUBLIC_URL: ws://localhost:8788
+      SUPABASE_PUBLIC_URL: http://localhost:54321
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      # Unlike the other URL env vars, this variable is only used inside the
+      # container, so it is the "nonpublic" version.
+      SUPABASE_PG_URL: postgresql://postgres:postgres@host.docker.internal:54322/postgres
     ports:
       - 3000:3000
     extra_hosts:
       - "host.docker.internal:host-gateway"
   braintrust-standalone-app-bootstrap:
     image: public.ecr.aws/braintrust/standalone-app-bootstrap:latest
-    env_file:
-      - .env
+    environment:
+      # This container allows you to issue api keys to new users (as a way to
+      # bootstrap access). You can lock down that webserver so that only admins
+      # can access it. For example, you do not need to expose that container's
+      # port externally. CONTAINER_SERVER_SECRET is a password that you can use
+      # as an additional layer of protection for that web server.
+      # CONTAINER_SERVER_SECRET's value must be included in the HTTP request as
+      # a header 'Authorization: Bearer [secret]'.
+      CONTAINER_SERVER_SECRET: my-secure-secret-token
+      SUPABASE_PG_URL: postgresql://postgres:postgres@host.docker.internal:54322/postgres
     ports:
       - 8100:8100
     extra_hosts:

@@ -1,3 +1,19 @@
+# Each docker container can be configured with environment variables. Many of
+# these variables point the container to the other services, which may be other
+# containers you have deployed or centrally-hosted Braintrust services.
+#
+# - REDIS_URL: Connection URI for the redis instance for internal container use.
+# The general form of the URI is
+# `redis://[user[:password]@][host][:port][/db-number][?param1=value1&param2=value2...]`.
+# Defaults to the URI for the `braintrust-redis` docker service.
+#
+# - PG_URL: Connection URI for the postgres instance for internal container use.
+# The general form of the URI is
+# `postgresql://[user[:password]@][host][:port][/dbname][?param1=value1&param2=value2...]`.
+# Defaults to the URI for the 'braintrust-postgres' docker service. See
+# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS
+# for full details on the URI spec.
+
 version: "3.1"
 
 services:
@@ -22,14 +38,20 @@ services:
       - api_pg_volume:/var/lib/postgresql/data
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
-    env_file:
-      - .env
+    environment:
+      # This variable instructs the API to connect to the centrally-hosted
+      # components.
+      CHALICE_LOCAL_USE_PROD_ENV: 1
+      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      REDIS_URL: redis://host.docker.internal:6479/0
+      # If you are deploying any other services yourself, such as the proxy or
+      # realtime, you may override their URLs here as well (PROXY_URL and
+      # REALTIME_URL, respectively). See the environment settings in
+      # docker-compose.full.yml for a starting point.
     ports:
       - 8000:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    environment:
-      CHALICE_LOCAL_USE_PROD_ENV: 1
     depends_on:
       braintrust-redis:
         condition: service_healthy
