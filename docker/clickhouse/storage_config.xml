@@ -1,0 +1,42 @@
+<clickhouse>
+  <storage_configuration>
+    <disks>
+      <s3_disk>
+        <type>s3</type>
+        <!--
+            Set this to the URL of the s3 bucket you wish to allocate to
+            clickhouse.
+            In general, the form is
+            https://[bucket-name].s3.[aws-region].amazonaws.com/[optional-folder-path-within-bucket].
+            But it may vary depending on the storage backend you wish to use.
+        -->
+        <endpoint>[s3-url]</endpoint>
+        <!--
+            In order to authenticate to S3, you must set the appropriate
+            environment variables (e.g. AWS_ACCESS_KEY_ID and
+            AWS_SECRET_ACCESS_KEY). See
+            https://clickhouse.com/docs/en/integrations/s3#managing-credentials
+            for all available authentication options.
+        -->
+        <use_environment_credentials>true</use_environment_credentials>
+        <metadata_path>/var/lib/clickhouse/disks/s3/</metadata_path>
+      </s3_disk>
+      <s3_cache>
+        <type>cache</type>
+        <disk>s3_disk</disk>
+        <path>/var/lib/clickhouse/disks/s3_cache/</path>
+        <max_size>100Gi</max_size>
+      </s3_cache>
+    </disks>
+    <policies>
+      <!-- The name of the policy must remain 's3_main'. -->
+      <s3_main>
+        <volumes>
+          <main>
+            <disk>s3_disk</disk>
+          </main>
+        </volumes>
+      </s3_main>
+    </policies>
+  </storage_configuration>
+</clickhouse>

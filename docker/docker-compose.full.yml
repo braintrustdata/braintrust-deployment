@@ -54,13 +54,15 @@
 #
 # - CLICKHOUSE_PG_URL: Connection URI for the clickhouse instance over the
 # postgres wire protocol, for internal container use. Takes the same URI form as
-# PG_URL. Defaults to the URI for the 'braintrust-clickhouse' docker service.
+# PG_URL. Defaults to the postgres URI for the 'braintrust-clickhouse' docker
+# service on port 9005.
 #
 # - CLICKHOUSE_CONNECT_URL: Connection URI for the clickhouse instance over the
 # clickhouse-connect protocol, for internal container use. The general form of
 # the URI is
 # `clickhouse:[//[user[:password]@][hosts_and_ports]][/database][?query_parameters]`.
-# Defaults to the URI for the 'braintrust-clickhouse' docker service. See
+# Defaults to the HTTP URI for the 'braintrust-clickhouse' docker service on
+# port 8123. See
 # https://clickhouse.com/docs/en/integrations/sql-clients/cli#connection_string
 # for full details on the URI spec.
 #
@@ -109,14 +111,28 @@ services:
       CLICKHOUSE_USER: default
       CLICKHOUSE_PASSWORD: default
     ports:
+      # Port for connecting through clickhouse-connect.
       - 8123:8123
-      - 9000:9000
+      # Port for connecting through postgres.
       - 9005:9005
-      - 9009:9009
+      # Port for connecting through the clickhouse client binary. This is not
+      # used by Braintrust but can be useful for poking around the clickhouse
+      # instance yourself.
+      - 9000:9000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_clickhouse_volume:/var/lib/clickhouse
+      - api_clickhouse_logs_volume:/var/log/clickhouse-server
+      # In order to configure clickhouse to store data in Amazon S3, you may
+      # pull the template configuration file at
+      # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
+      # and mount it into the clickhouse container. You will need to configure
+      # your S3 URL in 'storage_config.xml' and include any relevant auth
+      # credentials in the clickhouse container. See
+      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
+      # full details.
+      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
@@ -198,3 +214,4 @@ services:
 volumes:
   api_pg_volume: null
   api_clickhouse_volume: null
+  api_clickhouse_logs_volume: null
