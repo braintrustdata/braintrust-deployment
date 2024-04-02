@@ -52,6 +52,18 @@
 # https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING-URIS
 # for full details on the URI spec.
 #
+# - CLICKHOUSE_PG_URL: Connection URI for the clickhouse instance over the
+# postgres wire protocol, for internal container use. Takes the same URI form as
+# PG_URL. Defaults to the URI for the 'braintrust-clickhouse' docker service.
+#
+# - CLICKHOUSE_CONNECT_URL: Connection URI for the clickhouse instance over the
+# clickhouse-connect protocol, for internal container use. The general form of
+# the URI is
+# `clickhouse:[//[user[:password]@][hosts_and_ports]][/database][?query_parameters]`.
+# Defaults to the URI for the 'braintrust-clickhouse' docker service. See
+# https://clickhouse.com/docs/en/integrations/sql-clients/cli#connection_string
+# for full details on the URI spec.
+#
 # - SUPABASE_ANON_KEY: "anon key" of the local supabase deployment. Defaults to
 # the anon key printed out by a local supabase deployment. Note that the service
 # role here is anonymous, so the key does not grant any privileged access to the
@@ -91,6 +103,20 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
+  braintrust-clickhouse:
+    image: public.ecr.aws/braintrust/clickhouse:latest
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: default
+    ports:
+      - 8123:8123
+      - 9000:9000
+      - 9005:9005
+      - 9009:9009
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - api_clickhouse_volume:/var/lib/clickhouse
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
@@ -101,6 +127,8 @@ services:
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+      CLICKHOUSE_CONNECT_URL: clickhouse://default:default@host.docker.internal:8123/default
       REDIS_URL: redis://host.docker.internal:6479/0
       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       SUPABASE_URL: http://host.docker.internal:54321
@@ -109,6 +137,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
+      braintrust-clickhouse:
+        condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
@@ -167,3 +197,4 @@ services:
 
 volumes:
   api_pg_volume: null
+  api_clickhouse_volume: null
