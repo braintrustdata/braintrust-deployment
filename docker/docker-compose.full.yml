@@ -83,8 +83,8 @@
 #
 # Note: if you want to run the API with clickhouse (currently it defaults to
 # running without clickhouse), simply uncomment the relevant blocks of
-# configuration code. Each relevant block is preceeded by a comment starting
-# with "To disable clickhouse".
+# configuration code. Each relevant block is preceded by a comment starting with
+# "To disable clickhouse".
 
 version: "3.1"
 
