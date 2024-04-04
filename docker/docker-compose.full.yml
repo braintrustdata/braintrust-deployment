@@ -80,6 +80,10 @@
 # - SUPABASE_PUBLIC_URL: API URL of the supabase instance for external clients.
 # Defaults to the URL of a locally-deployed supabase instance accessible from
 # the host machine.
+#
+# Note: if you want to run the API *without* clickhouse, simply comment out the
+# relevant blocks of configuration code. Each relevant block is preceeded by a
+# comment starting with "To disable clickhouse".
 
 version: "3.1"
 
@@ -105,6 +109,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
+  # To disable clickhouse, comment out this entire service definition.
   braintrust-clickhouse:
     image: public.ecr.aws/braintrust/clickhouse:latest
     environment:
@@ -145,6 +150,11 @@ services:
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
       CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
       CLICKHOUSE_CONNECT_URL: clickhouse://default:default@host.docker.internal:8123/default
+      # To disable clickhouse, replace the CLICKHOUSE_PG_URL and
+      # CLICKHOUSE_CONNECT_URL settings with the ones below, which explicitly
+      # set them to an empty string.
+      # CLICKHOUSE_PG_URL: ""
+      # CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       SUPABASE_URL: http://host.docker.internal:54321
@@ -153,6 +163,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
+      # To disable clickhouse, comment out this dependency on
+      # `braintrust-clickhouse`.
       braintrust-clickhouse:
         condition: service_healthy
       braintrust-redis:
@@ -213,5 +225,6 @@ services:
 
 volumes:
   api_pg_volume: null
+  # To disable clickhouse, comment out these volume definitions.
   api_clickhouse_volume: null
   api_clickhouse_logs_volume: null
