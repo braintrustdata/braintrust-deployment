@@ -80,6 +80,11 @@
 # - SUPABASE_PUBLIC_URL: API URL of the supabase instance for external clients.
 # Defaults to the URL of a locally-deployed supabase instance accessible from
 # the host machine.
+#
+# Note: if you want to run the API with clickhouse (currently it defaults to
+# running without clickhouse), simply uncomment the relevant blocks of
+# configuration code. Each relevant block is preceeded by a comment starting
+# with "To disable clickhouse".
 
 version: "3.1"
 
@@ -105,34 +110,35 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
-  braintrust-clickhouse:
-    image: public.ecr.aws/braintrust/clickhouse:latest
-    environment:
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: default
-    ports:
-      # Port for connecting through clickhouse-connect.
-      - 8123:8123
-      # Port for connecting through postgres.
-      - 9005:9005
-      # Port for connecting through the clickhouse client binary. This is not
-      # used by Braintrust but can be useful for poking around the clickhouse
-      # instance yourself.
-      - 9000:9000
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - api_clickhouse_volume:/var/lib/clickhouse
-      - api_clickhouse_logs_volume:/var/log/clickhouse-server
-      # In order to configure clickhouse to store data in Amazon S3, you may
-      # pull the template configuration file at
-      # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
-      # and mount it into the clickhouse container. You will need to configure
-      # your S3 URL in 'storage_config.xml' and include any relevant auth
-      # credentials in the clickhouse container. See
-      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
-      # full details.
-      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
+  # To disable clickhouse, comment out this entire service definition.
+  #braintrust-clickhouse:
+  #  image: public.ecr.aws/braintrust/clickhouse:latest
+  #  environment:
+  #    CLICKHOUSE_USER: default
+  #    CLICKHOUSE_PASSWORD: default
+  #  ports:
+  #    # Port for connecting through clickhouse-connect.
+  #    - 8123:8123
+  #    # Port for connecting through postgres.
+  #    - 9005:9005
+  #    # Port for connecting through the clickhouse client binary. This is not
+  #    # used by Braintrust but can be useful for poking around the clickhouse
+  #    # instance yourself.
+  #    - 9000:9000
+  #  extra_hosts:
+  #    - "host.docker.internal:host-gateway"
+  #  volumes:
+  #    - api_clickhouse_volume:/var/lib/clickhouse
+  #    - api_clickhouse_logs_volume:/var/log/clickhouse-server
+  #    # In order to configure clickhouse to store data in Amazon S3, you may
+  #    # pull the template configuration file at
+  #    # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
+  #    # and mount it into the clickhouse container. You will need to configure
+  #    # your S3 URL in 'storage_config.xml' and include any relevant auth
+  #    # credentials in the clickhouse container. See
+  #    # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
+  #    # full details.
+  #    # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
@@ -143,8 +149,13 @@ services:
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
-      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-      CLICKHOUSE_CONNECT_URL: clickhouse://default:default@host.docker.internal:8123/default
+      #CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+      #CLICKHOUSE_CONNECT_URL: clickhouse://default:default@host.docker.internal:8123/default
+      # To disable clickhouse, replace the CLICKHOUSE_PG_URL and
+      # CLICKHOUSE_CONNECT_URL settings with the ones below, which explicitly
+      # set them to an empty string.
+      CLICKHOUSE_PG_URL: ""
+      CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       SUPABASE_URL: http://host.docker.internal:54321
@@ -153,8 +164,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      braintrust-clickhouse:
-        condition: service_healthy
+      # To disable clickhouse, comment out this dependency on
+      # `braintrust-clickhouse`.
+      #braintrust-clickhouse:
+      #  condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
@@ -213,5 +226,6 @@ services:
 
 volumes:
   api_pg_volume: null
-  api_clickhouse_volume: null
-  api_clickhouse_logs_volume: null
+  # To disable clickhouse, comment out these volume definitions.
+  #api_clickhouse_volume: null
+  #api_clickhouse_logs_volume: null
