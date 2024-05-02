@@ -74,9 +74,6 @@
 # - SUPABASE_PG_URL: DB URL of the local supabase deployment for internal
 # container use. Defaults to PG URL of a locally-deployed supabase instance.
 #
-# - SUPABASE_URL: API URL of the supabase instance for internal container use.
-# Defaults to the URL of a locally-deployed supabase instance.
-#
 # - SUPABASE_PUBLIC_URL: API URL of the supabase instance for external clients.
 # Defaults to the URL of a locally-deployed supabase instance accessible from
 # the host machine.
@@ -157,8 +154,6 @@ services:
       CLICKHOUSE_PG_URL: ""
       CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
-      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-      SUPABASE_URL: http://host.docker.internal:54321
     ports:
       - 8000:8000
     extra_hosts:
