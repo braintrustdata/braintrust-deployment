@@ -60,7 +60,7 @@
 # - CLICKHOUSE_CONNECT_URL: Connection URI for the clickhouse instance over the
 # clickhouse-connect protocol, for internal container use. The general form of
 # the URI is
-# `clickhouse:[//[user[:password]@][hosts_and_ports]][/database][?query_parameters]`.
+# `http[s]:[//[user[:password]@][hosts_and_ports]][/database][?query_parameters]`.
 # Defaults to the HTTP URI for the 'braintrust-clickhouse' docker service on
 # port 8123. See
 # https://clickhouse.com/docs/en/integrations/sql-clients/cli#connection_string
@@ -154,6 +154,8 @@ services:
       CLICKHOUSE_PG_URL: ""
       CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
+      # Internal setting. Leave this as-is.
+      RESPONSE_BUCKET: ""
     ports:
       - 8000:8000
     extra_hosts:
