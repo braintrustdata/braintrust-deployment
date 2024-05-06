@@ -154,8 +154,6 @@ services:
       CLICKHOUSE_PG_URL: ""
       CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
-      # Internal setting. Leave this as-is.
-      RESPONSE_BUCKET: ""
     ports:
       - 8000:8000
     extra_hosts:
