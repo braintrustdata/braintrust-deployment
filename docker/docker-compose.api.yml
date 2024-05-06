@@ -100,8 +100,6 @@ services:
       CLICKHOUSE_PG_URL: ""
       CLICKHOUSE_CONNECT_URL: ""
       REDIS_URL: redis://host.docker.internal:6479/0
-      # Internal setting. Leave this as-is.
-      RESPONSE_BUCKET: ""
       # If you are deploying any other services yourself, such as the proxy or
       # realtime, you may override their URLs here as well (PROXY_URL and
       # REALTIME_URL, respectively). See the environment settings in
