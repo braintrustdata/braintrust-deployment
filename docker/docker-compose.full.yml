@@ -78,6 +78,9 @@
 # Defaults to the URL of a locally-deployed supabase instance accessible from
 # the host machine.
 #
+# - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
+# clients allowed in use by the API server. Defaults to 10.
+#
 # Note: if you want to run the API with clickhouse (currently it defaults to
 # running without clickhouse), simply uncomment the relevant blocks of
 # configuration code. Each relevant block is preceded by a comment starting with
