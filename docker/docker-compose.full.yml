@@ -14,32 +14,6 @@
 # need to set different values for the same env variable on different
 # containers. We document the set of available environment variables here.
 #
-# - API_PUBLIC_URL: URL of the backend API service for external clients.
-# Defaults to the URL of the `braintrust-standalone-api` service accessible from
-# the host machine.
-#
-# - BRAINTRUST_APP_URL: URL of the deployed webapp for internal container use.
-# Defaults to the URL of the `braintrust-standalone-app` docker service.
-#
-# - BRAINTRUST_APP_PUBLIC_URL: URL of the deployed webapp for external clients.
-# This is used for services that need to return a public-facing app URL to
-# users. Defaults to the URL of the `braintrust-standalone-app` docker service
-# accessible from the host machine.
-#
-# - PROXY_URL: URL of the proxy service for internal container use. Defaults to
-# the URL of the `braintrust-standalone-proxy` docker service.
-#
-# - PROXY_PUBLIC_URL: URL of the proxy service for external clients. Defaults to
-# the URL of the `braintrust-standalone-proxy` service accessible from the host
-# machine.
-#
-# - REALTIME_URL: URL of the realtime service for internal container use.
-# Defaults to the URL of the `braintrust-standalone-realtime` docker service.
-#
-# - REALTIME_PUBLIC_URL: URL of the realtime service for external clients.
-# Defaults to the URL of the `braintrust-standalone-realtime` service accessible
-# from the host machine.
-#
 # - REDIS_URL: Connection URI for the redis instance for internal container use.
 # The general form of the URI is
 # `redis://[user[:password]@][host][:port][/db-number][?param1=value1&param2=value2...]`.
@@ -66,6 +40,35 @@
 # https://clickhouse.com/docs/en/integrations/sql-clients/cli#connection_string
 # for full details on the URI spec.
 #
+# - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
+# clients allowed in use by the API server. Defaults to 10.
+#
+# - API_PUBLIC_URL: URL of the backend API service for external clients.
+# Defaults to the URL of the `braintrust-standalone-api` service accessible from
+# the host machine.
+#
+# - BRAINTRUST_APP_URL: URL of the deployed webapp for internal container use.
+# Defaults to the URL of the `braintrust-standalone-app` docker service.
+#
+# - BRAINTRUST_APP_PUBLIC_URL: URL of the deployed webapp for external clients.
+# This is used for services that need to return a public-facing app URL to
+# users. Defaults to the URL of the `braintrust-standalone-app` docker service
+# accessible from the host machine.
+#
+# - PROXY_URL: URL of the proxy service for internal container use. Defaults to
+# the URL of the `braintrust-standalone-proxy` docker service.
+#
+# - PROXY_PUBLIC_URL: URL of the proxy service for external clients. Defaults to
+# the URL of the `braintrust-standalone-proxy` service accessible from the host
+# machine.
+#
+# - REALTIME_URL: URL of the realtime service for internal container use.
+# Defaults to the URL of the `braintrust-standalone-realtime` docker service.
+#
+# - REALTIME_PUBLIC_URL: URL of the realtime service for external clients.
+# Defaults to the URL of the `braintrust-standalone-realtime` service accessible
+# from the host machine.
+#
 # - SUPABASE_ANON_KEY: "anon key" of the local supabase deployment. Defaults to
 # the anon key printed out by a local supabase deployment. Note that the service
 # role here is anonymous, so the key does not grant any privileged access to the
@@ -78,19 +81,14 @@
 # Defaults to the URL of a locally-deployed supabase instance accessible from
 # the host machine.
 #
-# - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
-# clients allowed in use by the API server. Defaults to 10.
-#
 # Note: if you want to run the API with clickhouse (currently it defaults to
-# running without clickhouse), simply uncomment the relevant blocks of
-# configuration code. Each relevant block is preceded by a comment starting with
-# "To disable clickhouse".
+# running without clickhouse), follow the directions of each clickhouse comment
+# block. Each relevant block is preceded by a comment starting with "To enable
+# clickhouse".
 
 version: "3.1"
 
 services:
-  # This is kept in sync with docker-compose.api.yml, except for the environment
-  # variable settings of `braintrust-standalone-api`.
   braintrust-redis:
     image: public.ecr.aws/braintrust/redis:latest
     ports:
@@ -110,67 +108,63 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
-  # To disable clickhouse, comment out this entire service definition.
-  #braintrust-clickhouse:
-  #  image: public.ecr.aws/braintrust/clickhouse:latest
-  #  environment:
-  #    CLICKHOUSE_USER: default
-  #    CLICKHOUSE_PASSWORD: default
-  #  ports:
-  #    # Port for connecting through clickhouse-connect.
-  #    - 8123:8123
-  #    # Port for connecting through postgres.
-  #    - 9005:9005
-  #    # Port for connecting through the clickhouse client binary. This is not
-  #    # used by Braintrust but can be useful for poking around the clickhouse
-  #    # instance yourself.
-  #    - 9000:9000
-  #  extra_hosts:
-  #    - "host.docker.internal:host-gateway"
-  #  volumes:
-  #    - api_clickhouse_volume:/var/lib/clickhouse
-  #    - api_clickhouse_logs_volume:/var/log/clickhouse-server
-  #    # In order to configure clickhouse to store data in Amazon S3, you may
-  #    # pull the template configuration file at
-  #    # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
-  #    # and mount it into the clickhouse container. You will need to configure
-  #    # your S3 URL in 'storage_config.xml' and include any relevant auth
-  #    # credentials in the clickhouse container. See
-  #    # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
-  #    # full details.
-  #    # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
+      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      REDIS_URL: redis://host.docker.internal:6479/0
       BRAINTRUST_APP_URL: http://host.docker.internal:3000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
       PROXY_URL: http://host.docker.internal:8787/v1
       # Here we are using the http scheme because the backend API connects to
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
-      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
-      #CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-      #CLICKHOUSE_CONNECT_URL: clickhouse://default:default@host.docker.internal:8123/default
-      # To disable clickhouse, replace the CLICKHOUSE_PG_URL and
-      # CLICKHOUSE_CONNECT_URL settings with the ones below, which explicitly
-      # set them to an empty string.
-      CLICKHOUSE_PG_URL: ""
-      CLICKHOUSE_CONNECT_URL: ""
-      REDIS_URL: redis://host.docker.internal:6479/0
+      # To enable clickhouse, replace the CLICKHOUSE_PG_URL and
+      # CLICKHOUSE_CONNECT_URL settings with the values in the comments. Leave
+      # them as an explicitly-set empty string to disable clickhouse.
+      CLICKHOUSE_PG_URL: ""  # postgres://default:default@host.docker.internal:9005/default
+      CLICKHOUSE_CONNECT_URL: ""  # clickhouse://default:default@host.docker.internal:8123/default
     ports:
       - 8000:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      # To disable clickhouse, comment out this dependency on
-      # `braintrust-clickhouse`.
-      #braintrust-clickhouse:
-      #  condition: service_healthy
+      # To enable clickhouse, un-comment this dependency.
+#      braintrust-clickhouse:
+#        condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
         condition: service_healthy
-
+  # To enable clickhouse, un-comment this entire service definition.
+#  braintrust-clickhouse:
+#    image: public.ecr.aws/braintrust/clickhouse:latest
+#    environment:
+#      CLICKHOUSE_USER: default
+#      CLICKHOUSE_PASSWORD: default
+#    ports:
+#      # Port for connecting through clickhouse-connect.
+#      - 8123:8123
+#      # Port for connecting through postgres.
+#      - 9005:9005
+#      # Port for connecting through the clickhouse client binary. This is not
+#      # used by Braintrust but can be useful for poking around the clickhouse
+#      # instance yourself.
+#      - 9000:9000
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    volumes:
+#      - api_clickhouse_volume:/var/lib/clickhouse
+#      - api_clickhouse_logs_volume:/var/log/clickhouse-server
+#      # In order to configure clickhouse to store data in Amazon S3, you may
+#      # pull the template configuration file at
+#      # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
+#      # and mount it into the clickhouse container. You will need to configure
+#      # your S3 URL in 'storage_config.xml' and include any relevant auth
+#      # credentials in the clickhouse container. See
+#      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
+#      # full details.
+#      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
   braintrust-standalone-app:
     image: public.ecr.aws/braintrust/standalone-app:latest
     environment:
@@ -221,9 +215,8 @@ services:
       - 8788:8788
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
 volumes:
   api_pg_volume: null
-  # To disable clickhouse, comment out these volume definitions.
-  #api_clickhouse_volume: null
-  #api_clickhouse_logs_volume: null
+  # To enable clickhouse, un-comment these volume definitions.
+#  api_clickhouse_volume: null
+#  api_clickhouse_logs_volume: null
