@@ -119,11 +119,9 @@ services:
       # Here we are using the http scheme because the backend API connects to
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
-      # To enable clickhouse, replace the CLICKHOUSE_PG_URL and
-      # CLICKHOUSE_CONNECT_URL settings with the values in the comments. Leave
-      # them as an explicitly-set empty string to disable clickhouse.
-      CLICKHOUSE_PG_URL: ""  # postgres://default:default@host.docker.internal:9005/default
-      CLICKHOUSE_CONNECT_URL: ""  # http://default:default@host.docker.internal:8123/default
+      # To enable clickhouse, un-comment these environment variables.
+#      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+#      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
     ports:
       - 8000:8000
     extra_hosts:
