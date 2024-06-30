@@ -86,7 +86,7 @@ services:
       braintrust-postgres:
         condition: service_healthy
   #
-  # # To enable clickhouse, un-comment this entire service definition.
+  ## To enable clickhouse, un-comment this entire service definition.
   # braintrust-clickhouse:
   #   image: public.ecr.aws/braintrust/clickhouse:latest
   #   environment:
@@ -117,7 +117,7 @@ services:
   #     # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
 
   #
-  # # To enable the proxy or realtime services, un-comment the below service definitions.
+  ## To enable the proxy or realtime services, un-comment the below service definitions.
   # braintrust-standalone-proxy:
   #   image: public.ecr.aws/braintrust/standalone-proxy:latest
   #   environment:
