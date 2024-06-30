@@ -66,13 +66,14 @@ services:
       CHALICE_LOCAL_USE_PROD_ENV: 1
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
       REDIS_URL: redis://host.docker.internal:6479/0
-      # To enable clickhouse, un-comment these environment variables.
-    #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-    #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
-    # If you are deploying any other services yourself, such as the proxy or
-    # realtime, you may override their URLs here as well (PROXY_URL and
-    # REALTIME_URL, respectively). See the environment settings in
-    # docker-compose.full.yml for a starting point.
+      ## To enable clickhouse, un-comment these environment variables.
+      # CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+      # CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
+      ## If you are deploying any other services yourself, such as the proxy or
+      ## realtime, you may override their URLs here as well (PROXY_URL and
+      ## REALTIME_URL, respectively).
+      # PROXY_URL: http://host.docker.internal:8787/v1
+      # REALTIME_URL: http://host.docker.internal:8788
     ports:
       - 8000:8000
     extra_hosts:
