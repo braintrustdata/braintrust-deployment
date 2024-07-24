@@ -55,13 +55,6 @@
 # users. Defaults to the URL of the `braintrust-standalone-app` docker service
 # accessible from the host machine.
 #
-# - PROXY_URL: URL of the proxy service for internal container use. Defaults to
-# the URL of the `braintrust-standalone-proxy` docker service.
-#
-# - PROXY_PUBLIC_URL: URL of the proxy service for external clients. Defaults to
-# the URL of the `braintrust-standalone-proxy` service accessible from the host
-# machine.
-#
 # - REALTIME_URL: URL of the realtime service for internal container use.
 # Defaults to the URL of the `braintrust-standalone-realtime` docker service.
 #
@@ -118,54 +111,54 @@ services:
       REDIS_URL: redis://host.docker.internal:6479/0
       BRAINTRUST_APP_URL: http://host.docker.internal:3000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
-      PROXY_URL: http://host.docker.internal:8787/v1
+      PROXY_URL: http://host.docker.internal:3000
       # Here we are using the http scheme because the backend API connects to
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
       # To enable clickhouse, un-comment these environment variables.
-#      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-#      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
+    #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+    #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
     ports:
       - 8000:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       # To enable clickhouse, un-comment this dependency.
-#      braintrust-clickhouse:
-#        condition: service_healthy
+      #      braintrust-clickhouse:
+      #        condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
         condition: service_healthy
   # To enable clickhouse, un-comment this entire service definition.
-#  braintrust-clickhouse:
-#    image: public.ecr.aws/braintrust/clickhouse:latest
-#    environment:
-#      CLICKHOUSE_USER: default
-#      CLICKHOUSE_PASSWORD: default
-#    ports:
-#      # Port for connecting through clickhouse-connect.
-#      - 8123:8123
-#      # Port for connecting through postgres.
-#      - 9005:9005
-#      # Port for connecting through the clickhouse client binary. This is not
-#      # used by Braintrust but can be useful for poking around the clickhouse
-#      # instance yourself.
-#      - 9000:9000
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    volumes:
-#      - api_clickhouse_volume:/var/lib/clickhouse
-#      - api_clickhouse_logs_volume:/var/log/clickhouse-server
-#      # In order to configure clickhouse to store data in Amazon S3, you may
-#      # pull the template configuration file at
-#      # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
-#      # and mount it into the clickhouse container. You will need to configure
-#      # your S3 URL in 'storage_config.xml' and include any relevant auth
-#      # credentials in the clickhouse container. See
-#      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
-#      # full details.
-#      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
+  #  braintrust-clickhouse:
+  #    image: public.ecr.aws/braintrust/clickhouse:latest
+  #    environment:
+  #      CLICKHOUSE_USER: default
+  #      CLICKHOUSE_PASSWORD: default
+  #    ports:
+  #      # Port for connecting through clickhouse-connect.
+  #      - 8123:8123
+  #      # Port for connecting through postgres.
+  #      - 9005:9005
+  #      # Port for connecting through the clickhouse client binary. This is not
+  #      # used by Braintrust but can be useful for poking around the clickhouse
+  #      # instance yourself.
+  #      - 9000:9000
+  #    extra_hosts:
+  #      - "host.docker.internal:host-gateway"
+  #    volumes:
+  #      - api_clickhouse_volume:/var/lib/clickhouse
+  #      - api_clickhouse_logs_volume:/var/log/clickhouse-server
+  #      # In order to configure clickhouse to store data in Amazon S3, you may
+  #      # pull the template configuration file at
+  #      # https://github.com/braintrustdata/braintrust-deployment/blob/main/docker/clickhouse/storage_config.xml
+  #      # and mount it into the clickhouse container. You will need to configure
+  #      # your S3 URL in 'storage_config.xml' and include any relevant auth
+  #      # credentials in the clickhouse container. See
+  #      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
+  #      # full details.
+  #      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
   braintrust-standalone-app:
     image: public.ecr.aws/braintrust/standalone-app:latest
     environment:
@@ -173,7 +166,6 @@ services:
       # client itself.
       API_PUBLIC_URL: http://localhost:8000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
-      PROXY_PUBLIC_URL: http://localhost:8787/v1
       # Here we are using the ws scheme because the webapp connects to the
       # realtime service over websockets.
       REALTIME_PUBLIC_URL: ws://localhost:8788
@@ -200,17 +192,6 @@ services:
       SUPABASE_PG_URL: postgresql://postgres:postgres@host.docker.internal:54322/postgres
     ports:
       - 8100:8100
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-  braintrust-standalone-proxy:
-    image: public.ecr.aws/braintrust/standalone-proxy:latest
-    environment:
-      BRAINTRUST_APP_URL: http://host.docker.internal:3000
-      CHALICE_LOCAL_USE_LOCAL_ENV: 1
-      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
-      REDIS_URL: redis://host.docker.internal:6479/0
-    ports:
-      - 8787:8787
     extra_hosts:
       - "host.docker.internal:host-gateway"
   braintrust-standalone-realtime:

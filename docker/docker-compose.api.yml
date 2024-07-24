@@ -64,25 +64,25 @@ services:
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
       REDIS_URL: redis://host.docker.internal:6479/0
       # To enable clickhouse, un-comment these environment variables.
-#      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-#      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
-      # If you are deploying any other services yourself, such as the proxy or
-      # realtime, you may override their URLs here as well.
-      # PROXY_URL: http://host.docker.internal:8787/v1
-      # REALTIME_URL: http://host.docker.internal:8788
+    #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+    #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
+    # If you are deploying any other services yourself, such as the proxy or
+    # realtime, you may override their URLs here as well.
+    # PROXY_URL: http://host.docker.internal:8787/v1
+    # REALTIME_URL: http://host.docker.internal:8788
     ports:
       - 8000:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       # To enable clickhouse, un-comment this dependency.
-#      braintrust-clickhouse:
-#        condition: service_healthy
+      #      braintrust-clickhouse:
+      #        condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
         condition: service_healthy
-  # To enable clickhouse, un-comment this entire service definition.
+### To enable clickhouse, un-comment this entire service definition.
 #  braintrust-clickhouse:
 #    image: public.ecr.aws/braintrust/clickhouse:latest
 #    environment:
@@ -111,17 +111,9 @@ services:
 #      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
 #      # full details.
 #      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
-  # To enable the proxy or realtime services, un-comment the service definitions
-  # below.
-#  braintrust-standalone-proxy:
-#    image: public.ecr.aws/braintrust/standalone-proxy:latest
-#    environment:
-#      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#      REDIS_URL: redis://host.docker.internal:6479/0
-#    ports:
-#      - 8787:8787
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
+#
+### To enable the realtime service, un-comment the service definition below. The realtime service
+### is optional.
 #  braintrust-standalone-realtime:
 #    image: public.ecr.aws/braintrust/standalone-realtime:latest
 #    ports:
