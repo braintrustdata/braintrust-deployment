@@ -66,7 +66,7 @@ services:
       # To enable clickhouse, un-comment these environment variables.
 #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
 #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
-      # If you are deploying any other services yourself, such as the proxy or
+      # If you are deploying any other services yourself, such as
       # realtime, you may override their URLs here as well.
       # REALTIME_URL: http://host.docker.internal:8788
     ports:
