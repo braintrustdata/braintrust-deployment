@@ -55,13 +55,6 @@
 # users. Defaults to the URL of the `braintrust-standalone-app` docker service
 # accessible from the host machine.
 #
-# - PROXY_URL: URL of the proxy service for internal container use. Defaults to
-# the URL of the `braintrust-standalone-proxy` docker service.
-#
-# - PROXY_PUBLIC_URL: URL of the proxy service for external clients. Defaults to
-# the URL of the `braintrust-standalone-proxy` service accessible from the host
-# machine.
-#
 # - REALTIME_URL: URL of the realtime service for internal container use.
 # Defaults to the URL of the `braintrust-standalone-realtime` docker service.
 #
@@ -118,7 +111,6 @@ services:
       REDIS_URL: redis://host.docker.internal:6479/0
       BRAINTRUST_APP_URL: http://host.docker.internal:3000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
-      PROXY_URL: http://host.docker.internal:8787/v1
       # Here we are using the http scheme because the backend API connects to
       # the realtime service over HTTP.
       REALTIME_URL: http://host.docker.internal:8788
@@ -173,7 +165,6 @@ services:
       # client itself.
       API_PUBLIC_URL: http://localhost:8000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
-      PROXY_PUBLIC_URL: http://localhost:8787/v1
       # Here we are using the ws scheme because the webapp connects to the
       # realtime service over websockets.
       REALTIME_PUBLIC_URL: ws://localhost:8788
@@ -200,17 +191,6 @@ services:
       SUPABASE_PG_URL: postgresql://postgres:postgres@host.docker.internal:54322/postgres
     ports:
       - 8100:8100
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-  braintrust-standalone-proxy:
-    image: public.ecr.aws/braintrust/standalone-proxy:latest
-    environment:
-      BRAINTRUST_APP_URL: http://host.docker.internal:3000
-      CHALICE_LOCAL_USE_LOCAL_ENV: 1
-      PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
-      REDIS_URL: redis://host.docker.internal:6479/0
-    ports:
-      - 8787:8787
     extra_hosts:
       - "host.docker.internal:host-gateway"
   braintrust-standalone-realtime:
