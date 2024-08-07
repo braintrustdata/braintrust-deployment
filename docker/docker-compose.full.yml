@@ -158,6 +158,17 @@ services:
 #      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
 #      # full details.
 #      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
+  braintrust-standalone-supabase-db:
+    image: public.ecr.aws/supabase/postgres:15.1.1.69
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - supabase_db_braintrust-standalone:/var/lib/postgresql/data
+      - supabase_config_braintrust-standalone:/etc/postgresql-custom
   braintrust-standalone-app:
     image: public.ecr.aws/braintrust/standalone-app:latest
     environment:
@@ -177,6 +188,9 @@ services:
       - 3000:3000
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      braintrust-standalone-supabase-db:
+        condition: service_healthy
   braintrust-standalone-app-bootstrap:
     image: public.ecr.aws/braintrust/standalone-app-bootstrap:latest
     environment:
@@ -204,3 +218,18 @@ volumes:
   # To enable clickhouse, un-comment these volume definitions.
 #  api_clickhouse_volume: null
 #  api_clickhouse_logs_volume: null
+  # If you are upgrading from an existing 'full' deployment, uncomment the
+  # 'external: true' lines to re-use your existing supabase volume data. If the names
+  # of your volumes are different for any reason, you can get the exact names of
+  # the 'db' and 'config' supabase volumes by running
+  #
+  # docker inspect -f '{{ .Mounts }}' [container-id]
+  #
+  # Where [container-id] is the ID of the 'supabase/postgres' container in your
+  # original deployment. Then adjust the 'name' fields below accordingly.
+  supabase_db_braintrust-standalone:
+    # external: true
+    name: supabase_db_braintrust-standalone
+  supabase_config_braintrust-standalone:
+    # external: true
+    name: supabase_config_braintrust-standalone
