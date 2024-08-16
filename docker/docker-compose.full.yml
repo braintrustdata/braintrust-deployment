@@ -43,6 +43,12 @@
 # - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
 # clients allowed in use by the API server. Defaults to 10.
 #
+# - ALLOW_CODE_FUNCTION_EXECUTION: Whether to allow custom code (Typescript and Python)
+# to execute. This is safe to enable as long as you are running code that you trust to not
+# be malicious (i.e. do not expose this to the public). If you would like to support running
+# untrusted code, then contact us at support@braintrust.dev so we can ensure you've configured
+# the appropriate security controls.
+#
 # - API_PUBLIC_URL: URL of the backend API service for external clients.
 # Defaults to the URL of the `braintrust-standalone-api` service accessible from
 # the host machine.
@@ -109,6 +115,7 @@ services:
       CHALICE_LOCAL_USE_LOCAL_ENV: 1
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
       REDIS_URL: redis://host.docker.internal:6479/0
+      ALLOW_CODE_FUNCTION_EXECUTION: true
       BRAINTRUST_APP_URL: http://host.docker.internal:3000
       BRAINTRUST_APP_PUBLIC_URL: http://localhost:3000
       # Here we are using the http scheme because the backend API connects to

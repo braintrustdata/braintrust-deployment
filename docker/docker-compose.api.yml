@@ -31,6 +31,12 @@
 # - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
 # clients allowed in use by the API server. Defaults to 10.
 #
+# - ALLOW_CODE_FUNCTION_EXECUTION: Whether to allow custom code (Typescript and Python)
+# to execute. This is safe to enable as long as you are running code that you trust to not
+# be malicious (i.e. do not expose this to the public). If you would like to support running
+# untrusted code, then contact us at support@braintrust.dev so we can ensure you've configured
+# the appropriate security controls.
+#
 # Note: if you want to run the API with clickhouse (currently it defaults to
 # running without clickhouse), follow the directions of each clickhouse comment
 # block. Each relevant block is preceded by a comment starting with "To enable
@@ -65,19 +71,19 @@ services:
       REDIS_URL: redis://host.docker.internal:6479/0
       ALLOW_CODE_FUNCTION_EXECUTION: true
       # To enable clickhouse, un-comment these environment variables.
-    #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
-    #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
-    # If you are deploying any other services yourself, such as
-    # realtime, you may override their URLs here as well.
-    # REALTIME_URL: http://host.docker.internal:8788
+#      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
+#      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
+      # If you are deploying any other services yourself, such as
+      # realtime, you may override their URLs here as well.
+      # REALTIME_URL: http://host.docker.internal:8788
     ports:
       - 8000:8000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       # To enable clickhouse, un-comment this dependency.
-      #      braintrust-clickhouse:
-      #        condition: service_healthy
+#      braintrust-clickhouse:
+#        condition: service_healthy
       braintrust-redis:
         condition: service_healthy
       braintrust-postgres:
@@ -111,8 +117,8 @@ services:
 #      # https://clickhouse.com/docs/en/integrations/s3#managing-credentials for
 #      # full details.
 #      # - ./clickhouse/storage_config.xml:/etc/clickhouse-server/config.d/storage_config.xml
-# To enable the realtime service, un-comment the service definition below. The realtime service
-# is optional.
+  # To enable the realtime service, un-comment the service definition below. The realtime service
+  # is optional.
 #  braintrust-standalone-realtime:
 #    image: public.ecr.aws/braintrust/standalone-realtime:latest
 #    ports:
