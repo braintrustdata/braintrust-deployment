@@ -49,6 +49,12 @@
 # untrusted code, then contact us at support@braintrust.dev so we can ensure you've configured
 # the appropriate security controls.
 #
+# - FUNCTION_SECRET_KEY: The key to use for encrypting function env secrets. Function environment
+# secrets can be specified per org, project, or function and are exposed to functions as environment
+# variables. This key is used to symmetrically encrypt (via AES-GCM 256) function secrets before storing
+# them in the database. Once this key is set, if you change it, you will no longer be able to access
+# any saved function secrets.
+#
 # - API_PUBLIC_URL: URL of the backend API service for external clients.
 # Defaults to the URL of the `braintrust-standalone-api` service accessible from
 # the host machine.
