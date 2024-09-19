@@ -48,7 +48,7 @@
 # to use when uploading to the RESPONSE_BUCKET. If unspecified, uses the AWS credentials from the
 # container's environment.
 #
-# - RESPONSE_BUCKET_S3_ENDPOINT: The S3 (or protocol-compatible) endpoint to use when uploading to 
+# - RESPONSE_BUCKET_S3_ENDPOINT: The S3 (or protocol-compatible) endpoint to use when uploading to
 # the RESPONSE_BUCKET (defaults to AWS at RESPONSE_BUCKET_REGION).
 #
 # - RESPONSE_BUCKET_REGION: The region of the RESPONSE_BUCKET.
