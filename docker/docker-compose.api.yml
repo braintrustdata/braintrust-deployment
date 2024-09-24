@@ -31,11 +31,42 @@
 # - PG_POOL_CONFIG_MAX_NUM_CLIENTS: Configure the maximum number of postgres
 # clients allowed in use by the API server. Defaults to 10.
 #
+# - RESPONSE_BUCKET_NAME: The S3 (or protocol-compatible) bucket to use for storing API responses
+# that exceed a certain threshold (RESPONSE_BUCKET_OVERFLOW_THRESHOLD).
+#
+# - RESPONSE_BUCKET_OVERFLOW_THRESHOLD: The threshold (in bytes) that an API response must exceed
+# in order to be stored in the RESPONSE_BUCKET. This is useful for serverless environments where the
+# responses have a maximum payload size.
+#
+# - RESPONSE_BUCKET_PREFIX: The prefix to use when storing responses in the RESPONSE_BUCKET.
+#
+# - RESPONSE_BUCKET_ACCESS_KEY_ID: Together with RESPONSE_BUCKET_SECRET_ACCESS_KEY, the credentials
+# to use when uploading to the RESPONSE_BUCKET. If unspecified, uses the AWS credentials from the
+# container's environment.
+#
+# - RESPONSE_BUCKET_SECRET_ACCESS_KEY: Together with RESPONSE_BUCKET_ACCESS_KEY_ID, the credentials
+# to use when uploading to the RESPONSE_BUCKET. If unspecified, uses the AWS credentials from the
+# container's environment.
+#
+# - RESPONSE_BUCKET_S3_ENDPOINT: The S3 (or protocol-compatible) endpoint to use when uploading to
+# the RESPONSE_BUCKET (defaults to AWS at RESPONSE_BUCKET_REGION).
+#
+# - RESPONSE_BUCKET_REGION: The region of the RESPONSE_BUCKET.
+#
 # - ALLOW_CODE_FUNCTION_EXECUTION: Whether to allow custom code (Typescript and Python)
 # to execute. This is safe to enable as long as you are running code that you trust to not
 # be malicious (i.e. do not expose this to the public). If you would like to support running
 # untrusted code, then contact us at support@braintrust.dev so we can ensure you've configured
 # the appropriate security controls.
+#
+# - CODE_BUNDLE_BUCKET: The S3 (or protocol-compatible) bucket to use for storing code bundles. Uses
+# the same region and credentials as the RESPONSE_BUCKET.
+#
+# - FUNCTION_SECRET_KEY: The key to use for encrypting function env secrets. Function environment
+# secrets can be specified per org, project, or function and are exposed to functions as environment
+# variables. This key is used to symmetrically encrypt (via AES-GCM 256) function secrets before storing
+# them in the database. Once this key is set, if you change it, you will no longer be able to access
+# any saved function secrets.
 #
 # Note: if you want to run the API with clickhouse (currently it defaults to
 # running without clickhouse), follow the directions of each clickhouse comment
