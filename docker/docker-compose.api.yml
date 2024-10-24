@@ -53,7 +53,7 @@
 #
 # - RESPONSE_BUCKET_REGION: The region of the RESPONSE_BUCKET.
 #
-# - ALLOW_CODE_FUNCTION_EXECUTION: Whether to allow custom code (Typescript and Python)
+# - ALLOW_CODE_FUNCTION_EXECUTION: Whether to allow custom code (TypeScript and Python)
 # to execute. This is safe to enable as long as you are running code that you trust to not
 # be malicious (i.e. do not expose this to the public). If you would like to support running
 # untrusted code, then contact us at support@braintrust.dev so we can ensure you've configured
