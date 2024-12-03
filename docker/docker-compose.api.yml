@@ -101,6 +101,10 @@ services:
       PG_URL: postgres://postgres:postgres@host.docker.internal:5532/postgres
       REDIS_URL: redis://host.docker.internal:6479/0
       ALLOW_CODE_FUNCTION_EXECUTION: true
+      # Any requests made to the container from within itself will use the
+      # loopback URL rather than whatever externally-visible URL is set in the
+      # org configuration.
+      BRAINTRUST_API_URL: http://127.0.0.1:8000
       # To enable clickhouse, un-comment these environment variables.
 #      CLICKHOUSE_PG_URL: postgres://default:default@host.docker.internal:9005/default
 #      CLICKHOUSE_CONNECT_URL: http://default:default@host.docker.internal:8123/default
