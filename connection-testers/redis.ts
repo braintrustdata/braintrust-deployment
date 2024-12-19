@@ -25,6 +25,7 @@ async function main() {
   await redisClient.setEx("connection-tester-test", 60, "test");
   const value = await redisClient.get("connection-tester-test");
   console.log("Connection test successful! (test value: ", value, ")");
+  await redisClient.quit();
 }
 
 main();
