@@ -1,0 +1,18 @@
+{
+  "name": "connection-testers",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "description": "Utilities for testing connections to Redis and other services.",
+  "dependencies": {
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
