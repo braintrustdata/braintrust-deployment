@@ -102,25 +102,25 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
-# Uncomment this to enable Brainstore.
-#   braintrust-brainstore:
-#     image: public.ecr.aws/braintrust/brainstore:latest
-#     environment:
-#       BRAINSTORE_VERBOSE: 1
-#       BRAINSTORE_PORT: 4000
-#       BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#       BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#       BRAINSTORE_LOCKS_URI: redis://host.docker.internal:6479/0
-#       BRAINSTORE_INDEX_URI: s3://<YOUR_S3_BUCKET_NAME>/index
-#       BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_S3_BUCKET_NAME>/wal
-#       # You must set this environment variable in your local environment for
-#       # the Brainstore container to start.
-#       BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
-#       NO_COLOR: 1
-#     ports:
-#       - 4000:4000
-#     extra_hosts:
-#       - "host.docker.internal:host-gateway"
+  # Uncomment this to enable Brainstore.
+  #   braintrust-brainstore:
+  #     image: public.ecr.aws/braintrust/brainstore:latest
+  #     environment:
+  #       BRAINSTORE_VERBOSE: 1
+  #       BRAINSTORE_PORT: 4000
+  #       BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+  #       BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+  #       BRAINSTORE_LOCKS_URI: redis://host.docker.internal:6479/0
+  #       BRAINSTORE_INDEX_URI: s3://<YOUR_S3_BUCKET_NAME>/index
+  #       BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_S3_BUCKET_NAME>/wal
+  #       # You must set this environment variable in your local environment for
+  #       # the Brainstore container to start.
+  #       BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
+  #       NO_COLOR: 1
+  #     ports:
+  #       - 4000:4000
+  #     extra_hosts:
+  #       - "host.docker.internal:host-gateway"
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
@@ -151,8 +151,8 @@ services:
 # Uncomment this to enable Brainstore.
 #       braintrust-brainstore:
 #         condition: service_healthy
-  # To enable the realtime service, un-comment the service definition below. The realtime service
-  # is optional.
+# To enable the realtime service, un-comment the service definition below. The realtime service
+# is optional.
 #  braintrust-standalone-realtime:
 #    image: public.ecr.aws/braintrust/standalone-realtime:latest
 #    ports:
