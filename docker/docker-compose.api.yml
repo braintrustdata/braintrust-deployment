@@ -59,7 +59,7 @@
 # any saved function secrets.
 #
 # - ORG_NAME: A specific org name to use for this deployment or * to allow any org to access it. If unspecified,
-# `ORG_NAME` defaults to `*`. If specified, then certain operations, like proxy API key checks, will be 
+# `ORG_NAME` defaults to `*`. If specified, then certain operations, like AI secrets, will be
 # constrained to only the specified org.
 #
 
