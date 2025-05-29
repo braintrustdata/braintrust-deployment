@@ -58,6 +58,10 @@
 # them in the database. Once this key is set, if you change it, you will no longer be able to access
 # any saved function secrets.
 #
+# - ORG_NAME: A specific org name to use for this deployment or * to allow any org to access it. If unspecified,
+# `ORG_NAME` defaults to `*`. If specified, then certain operations, like proxy API key checks, will be 
+# constrained to only the specified org.
+#
 
 # Brainstore
 #
