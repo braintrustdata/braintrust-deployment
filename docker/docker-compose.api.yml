@@ -50,7 +50,15 @@
 # the appropriate security controls.
 #
 # - CODE_BUNDLE_BUCKET: The S3 (or protocol-compatible) bucket to use for storing code bundles. Uses
-# the same region and credentials as the RESPONSE_BUCKET.
+# the same region and credentials as the RESPONSE_BUCKET. By default, the code bundle bucket is also
+# used to store attachments under the `attachments/` prefix.
+#
+# - ATTACHMENT_BUCKET: The S3 (or protocol-compatible) bucket to use for storing attachments. Uses
+# the same region and credentials as the RESPONSE_BUCKET. This overrides the default behavior of
+# storing attachments in the code bundle bucket.
+#
+# - ATTACHMENT_BUCKET_PREFIX: The prefix to use when storing attachments in the configured code bundle
+# or attachments bucket.
 #
 # - FUNCTION_SECRET_KEY: The key to use for encrypting function env secrets. Function environment
 # secrets can be specified per org, project, or function and are exposed to functions as environment
