@@ -82,7 +82,7 @@
 # - BRAINSTORE_WAL_URI:
 #     This should point to the existing Braintrust Postgres database.
 # - BRAINSTORE_LOCKS_URI:
-#     This should point to the existing Braintrust Redis instance.
+#     You should change <YOUR_S3_BUCKET_NAME> to the name of your Brainstore S3 bucket. Leave the path as is.
 # - BRAINSTORE_INDEX_URI:
 #     You should change <YOUR_S3_BUCKET_NAME> to the name of your Brainstore S3 bucket. Leave the path as is.
 # - BRAINSTORE_REALTIME_WAL_URI:
@@ -119,7 +119,7 @@ services:
 #      BRAINSTORE_PORT: 4000
 #      BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
 #      BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#      BRAINSTORE_LOCKS_URI: redis://host.docker.internal:6479/0
+#      BRAINSTORE_LOCKS_URI: s3://<YOUR_S3_BUCKET_NAME>/locks
 #      BRAINSTORE_INDEX_URI: s3://<YOUR_S3_BUCKET_NAME>/index
 #      BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_S3_BUCKET_NAME>/wal
 #      # You must set this environment variable in your local environment for
