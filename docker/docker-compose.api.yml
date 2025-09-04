@@ -197,7 +197,9 @@ services:
         condition: service_healthy
       braintrust-postgres:
         condition: service_healthy
-      braintrust-brainstore:
+      braintrust-brainstore-reader:
+        condition: service_healthy
+      braintrust-brainstore-writer:
         condition: service_healthy
   # To enable the realtime service, un-comment the service definition below. The realtime service
   # is optional.
