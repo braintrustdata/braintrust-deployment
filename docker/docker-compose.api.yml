@@ -179,7 +179,7 @@ services:
       BRAINSTORE_BACKFILL_NEW_OBJECTS: true
       BRAINSTORE_INSERT_ROW_REFS: true
       BRAINSTORE_REALTIME_WAL_BUCKET: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/wal
-      SERVICE_TOKEN_SECRET_KEY: ${your-service-token-secret-key}
+      SERVICE_TOKEN_SECRET_KEY: ${any-random-string}
       CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
     ports:
       - 8000:8000
