@@ -151,7 +151,7 @@ services:
       BRAINSTORE_CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
       NO_COLOR: 1
     ports:
-      - 4000:4000
+      - 4001:4000
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -174,7 +174,7 @@ services:
       BRAINSTORE_ENABLED: true
       BRAINSTORE_DEFAULT: force
       BRAINSTORE_URL: http://braintrust-brainstore-reader:4000
-      BRAINSTORE_WRITER_URL: http://braintrust-brainstore-writer:4000
+      BRAINSTORE_WRITER_URL: http://braintrust-brainstore-writer:4001
       BRAINSTORE_ENABLE_HISTORICAL_FULL_BACKFILL: true
       BRAINSTORE_BACKFILL_NEW_OBJECTS: true
       BRAINSTORE_INSERT_ROW_REFS: true
