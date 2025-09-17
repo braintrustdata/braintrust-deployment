@@ -70,13 +70,13 @@
 
 # Brainstore
 #
-# Brainstore is an optional service that enables very fast real-time search.
+# Brainstore is a required service that enables very fast real-time search.
 # To use Brainstore, you must have a dedicated S3 bucket for Brainstore data, as well as
 # a license key provided by Braintrust. Brainstore will need to access the Postgres database
 # and Redis instance.
 #
-# To enable Brainstore, uncomment the service definition below, as well as the environment variables
-# and dependency in the standalone-api service definition.
+# Brainstore requires local SSD storage for the cache directory. This is ephemeral only and used for caching.
+#
 # - BRAINSTORE_METADATA_URI:
 #     This should point to the existing Braintrust Postgres database.
 # - BRAINSTORE_WAL_URI:
@@ -111,25 +111,52 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - api_pg_volume:/var/lib/postgresql/data
-  # Uncomment this to enable Brainstore.
-#  braintrust-brainstore:
-#    image: public.ecr.aws/braintrust/brainstore:latest
-#    environment:
-#      BRAINSTORE_VERBOSE: 1
-#      BRAINSTORE_PORT: 4000
-#      BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#      BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
-#      BRAINSTORE_LOCKS_URI: s3://<YOUR_S3_BUCKET_NAME>/locks
-#      BRAINSTORE_INDEX_URI: s3://<YOUR_S3_BUCKET_NAME>/index
-#      BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_S3_BUCKET_NAME>/wal
-#      # You must set this environment variable in your local environment for
-#      # the Brainstore container to start.
-#      BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
-#      NO_COLOR: 1
-#    ports:
-#      - 4000:4000
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
+  braintrust-brainstore-reader:
+    image: public.ecr.aws/braintrust/brainstore:latest
+    environment:
+      BRAINSTORE_VERBOSE: 1
+      BRAINSTORE_PORT: 4000
+      BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      BRAINSTORE_LOCKS_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/locks
+      BRAINSTORE_INDEX_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/index
+      BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/wal
+      BRAINSTORE_CACHE_DIR: /mnt/tmp/brainstore
+      BRAINSTORE_READER_ONLY_MODE: true
+      # You must set this environment variable in your local environment for
+      # the Brainstore container to start.
+      BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
+      BRAINSTORE_CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
+      NO_COLOR: 1
+    ports:
+      - 4000:4000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /mnt/tmp/brainstore:/mnt/tmp/brainstore
+  braintrust-brainstore-writer:
+    image: public.ecr.aws/braintrust/brainstore:latest
+    environment:
+      BRAINSTORE_VERBOSE: 1
+      BRAINSTORE_PORT: 4000
+      BRAINSTORE_METADATA_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      BRAINSTORE_WAL_URI: postgres://postgres:postgres@host.docker.internal:5532/postgres
+      BRAINSTORE_LOCKS_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/locks
+      BRAINSTORE_INDEX_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/index
+      BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/wal
+      BRAINSTORE_CACHE_DIR: /mnt/tmp/brainstore
+      BRAINSTORE_READER_ONLY_MODE: false
+      # You must set this environment variable in your local environment for
+      # the Brainstore container to start.
+      BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
+      BRAINSTORE_CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
+      NO_COLOR: 1
+    ports:
+      - 4001:4000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /mnt/tmp/brainstore:/mnt/tmp/brainstore
   braintrust-standalone-api:
     image: public.ecr.aws/braintrust/standalone-api:latest
     environment:
@@ -145,9 +172,16 @@ services:
       # If you are deploying any other services yourself, such as
       # realtime, you may override their URLs here as well.
       # REALTIME_URL: http://host.docker.internal:8788
-      # Uncomment this to enable Brainstore.
-      # BRAINSTORE_ENABLED: true
-      # BRAINSTORE_URL: http://braintrust-brainstore:4000
+      BRAINSTORE_ENABLED: true
+      BRAINSTORE_DEFAULT: force
+      BRAINSTORE_URL: http://braintrust-brainstore-reader:4000
+      BRAINSTORE_WRITER_URL: http://braintrust-brainstore-writer:4001
+      BRAINSTORE_ENABLE_HISTORICAL_FULL_BACKFILL: true
+      BRAINSTORE_BACKFILL_NEW_OBJECTS: true
+      BRAINSTORE_INSERT_ROW_REFS: true
+      BRAINSTORE_REALTIME_WAL_BUCKET: s3://<YOUR_BRAINSTORE_S3_BUCKET_NAME>/wal
+      SERVICE_TOKEN_SECRET_KEY: ${any-random-string}
+      CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
     ports:
       - 8000:8000
     extra_hosts:
@@ -157,9 +191,10 @@ services:
         condition: service_healthy
       braintrust-postgres:
         condition: service_healthy
-      # Uncomment this to enable Brainstore.
-#      braintrust-brainstore:
-#        condition: service_healthy
+      braintrust-brainstore-reader:
+        condition: service_healthy
+      braintrust-brainstore-writer:
+        condition: service_healthy
   # To enable the realtime service, un-comment the service definition below. The realtime service
   # is optional.
 #  braintrust-standalone-realtime:
