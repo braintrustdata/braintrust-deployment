@@ -125,6 +125,7 @@ services:
 #      # You must set this environment variable in your local environment for
 #      # the Brainstore container to start.
 #      BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
+#       BRAINSTORE_CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
 #      NO_COLOR: 1
 #    ports:
 #      - 4000:4000
@@ -148,6 +149,7 @@ services:
       # Uncomment this to enable Brainstore.
       # BRAINSTORE_ENABLED: true
       # BRAINSTORE_URL: http://braintrust-brainstore:4000
+      CONTROL_PLANE_TELEMETRY: 'status,metrics,usage'
     ports:
       - 8000:8000
     extra_hosts:
