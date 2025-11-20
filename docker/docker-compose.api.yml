@@ -122,6 +122,7 @@ services:
 #      BRAINSTORE_LOCKS_URI: s3://<YOUR_S3_BUCKET_NAME>/locks
 #      BRAINSTORE_INDEX_URI: s3://<YOUR_S3_BUCKET_NAME>/index
 #      BRAINSTORE_REALTIME_WAL_URI: s3://<YOUR_S3_BUCKET_NAME>/wal
+#      BRAINSTORE_XACT_MANAGER_URI: redis://host.docker.internal:6479/0
 #      # You must set this environment variable in your local environment for
 #      # the Brainstore container to start.
 #      BRAINSTORE_LICENSE_KEY: ${BRAINSTORE_LICENSE_KEY}
